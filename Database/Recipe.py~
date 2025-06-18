@@ -1,0 +1,2 @@
+class Recipe:
+    """A recipe that includes basic information, steps, ingredient?s, tags"""

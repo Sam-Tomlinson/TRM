@@ -1,0 +1,5 @@
+import Database.DAO
+
+myDao = Database.DAO.DAO("test.db")
+myDao.format_database()
+print(myDao.get_debug())

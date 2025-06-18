@@ -1,0 +1,59 @@
+import sqlite3
+
+class DAO:
+    """Data Access Object, used to interact with the Thyme Database"""
+    def __init__(self, dbName):
+        """Attempts to open database of name dbName and adds some basic data"""
+        self.dbName = dbName    # Name of Database
+        self.debug=[]           # Creates empty debug array
+        self.schemaFile = "schema.sql"   # Set the schema for formatting the database
+        self.version = 15424   # Database version, hopefully implemented for compatibility issues
+        
+        # Protect against bad connections
+        try:
+            self.con = sqlite3.connect(self.dbName)
+        except Exception as e:
+            print("Exception occured as: {}".format(e))
+            self.debug.append("Error: {}".format(e))
+
+        
+    def format_database(self):
+        """Formats connected database self.dbName"""
+        self.cur = self.con.cursor()
+        # Check if the database is empty
+        self.cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        result = self.cur.fetchall()
+        self.debug.append("Fetching tables from sqlite_master:")
+        self.debug.append(result)
+        if len(result) == 0:
+            # Format using schema.sql
+            with open(self.schemaFile, 'r') as f:
+                schema = f.read()
+            self.cur.executescript(schema)
+            self.con.commit()
+            self.debug.append("Database was empty, Formated using version {} from {}".format(self.version, self.schemaFile))
+        # Check for user version
+        self.cur.execute("PRAGMA user_version;") 
+        result = self.cur.fetchall()[0][0]
+        if result != self.version:
+            raise ValueError("Invalid Version Number: {}, Is {} a TRM database?".format(result, self.dbName))
+            self.debug.append("Version number is {}, db probably has a different schema".format(result))
+        else:
+            self.debug.append("Version number is {}, assuming db is correct".format(result))
+        self.cur.close()
+
+    def get_debug(self):
+        """Flushes self.debug"""
+        return self.debug
+
+    def insert_recipe(self, recipe):
+        """Insert Recipe, checks if the recipe is successful or not"""
+    def query_ingredients(self):
+        """Returns a list of all defined ingredients.  As a design note, ingredients should NOT BE CASE SENSITIVE"""
+        with self.con.cursor as c:
+            c.execute()
+    def query_units(self):
+        """"""
+    def query_tags(self):
+        """"""
+        
